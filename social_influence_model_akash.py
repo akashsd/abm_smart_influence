@@ -21,6 +21,7 @@ p_b = 0.5 # Pr(breaking tie with infected contact)
 p_a = 0.5 # Pr(adding a tie back after infection has resolved)
 
 prevalence = []
+signal_number=5
 
 def initialize():
     global g, nextg, prevalence
@@ -29,7 +30,7 @@ def initialize():
     
     nx.set_node_attributes(g, 0, 'state') # each node gets attribute called state where 0 := susceptible
     for n in g.nodes:
-        g._node[n]['state'] = random.randint(0,1)
+        g._node[n]['state'] = random.randint(0, signal_number-1)
     g._node[1]['state'] = 1 # node 1 starts with state 1 := influencer signal
 
     nx.set_node_attributes(g, 0, 'influencer') # each node gets attribute called influencer
@@ -59,21 +60,31 @@ def update():
             
             value = 0
             total = 0
+            # for b in g.neighbors(a):
+            #     if g._node[b]['state'] == 1:
+            #         value +=1
+            #         total +=1
+            #     if g._node[b]['state'] == 0:
+            #         total +=1
             for b in g.neighbors(a):
-                if g._node[b]['state'] == 1:
-                    value +=1
-                    total +=1
-                if g._node[b]['state'] == 0:
-                    total +=1
-
+                value = value + g._node[b]['state']
+                total += 1
             avg = value/total
             
-            if avg < 0.5:
-                nextg._node[a]['state'] = 0 
-            if avg == 0.5: 
-                nextg._node[a]['state'] = random.randint(0, 1)
-            if avg > 0.5: 
-                nextg._node[a]['state'] = 1
+            # if avg < 0.5:
+            #     nextg._node[a]['state'] = 0 
+            # if avg == 0.5: 
+            #     nextg._node[a]['state'] = random.randint(0, 1)
+            # if avg > 0.5: 
+            #     nextg._node[a]['state'] = 1
+            for i in range(0, signal_number):
+                if abs(avg-i) < 0.5:
+                    nextg._node[a]['state'] = i
+                if (avg-i) == 0.5:
+                    nextg._node[a]['state'] = random.randint(i, i+1)
+                if (avg-i) == -0.5:
+                    nextg._node[a]['state'] = random.randint(i-1, i)
+
         
         if g._node[a]['state'] == 1:
             curprev += 1
@@ -84,7 +95,7 @@ def update():
 def observe():
     global g, prevalence
     cla()
-    nx.draw_networkx(g, cmap = cm.Wistia, vmin = 0, vmax = 1, 
+    nx.draw_networkx(g, cmap = cm.Wistia, vmin = 0, vmax = 4, 
             #labels = labels, fontcolor = "whitesmoke", font_size = 20,        
             node_color = [g._node[i]['state'] for i in g.nodes],
             pos = g.pos)
