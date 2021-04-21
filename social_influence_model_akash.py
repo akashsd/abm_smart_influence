@@ -7,12 +7,12 @@ import os
 os.chdir('C:/Users/Akash/Dropbox (University of Michigan)/2nd Sem/SI710_Tanya/Code/abm_smart_influence/')
 
 import pycxsimulator
-from pylab import * #
-import networkx as nx #
-from copy import deepcopy #
-import matplotlib.pyplot as plt #
-from enum import Enum, IntEnum #
-import random #
+from pylab import * 
+import networkx as nx 
+from copy import deepcopy 
+import matplotlib.pyplot as plt 
+from enum import Enum, IntEnum 
+import random 
 
 
 p_i = 0.5 # Pr(infection per contact)
@@ -42,11 +42,11 @@ def initialize():
     
     nextg = g.copy()
     nextg.pos = g.pos
-    prevalence.append(1/len(g.nodes))
+    prevalence.append(1/len(g.nodes)) #What does append do here?
 
 def update():
     global g, nextg, prevalence
-    curprev = 0
+    curprev = 0 #???
     nextg = deepcopy(g) # current and next time steps are totally separate
     
     for a in g.nodes:
@@ -71,7 +71,7 @@ def update():
             if avg < 0.5:
                 nextg._node[a]['state'] = 0 
             if avg == 0.5: 
-                nextg._node[a]['state'] = randint(0,2)
+                nextg._node[a]['state'] = random.randint(0, 1)
             if avg > 0.5: 
                 nextg._node[a]['state'] = 1
         
