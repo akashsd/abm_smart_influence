@@ -1,2 +1,2 @@
 # abm_smart_influence
-Agent Based Modelling for the Smart Influence model. This was done as the final project for a course on Social Network Experiments
+Agent Based Modelling for the Smart Influence model. This was done as the final project for graduate a course on Social Network Experiments (SI 710) at UM.
