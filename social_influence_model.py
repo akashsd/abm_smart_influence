@@ -44,7 +44,8 @@ def initialize():
     nx.set_node_attributes(g, 0, 'state') # each node gets attribute called state where 0 := susceptible
     for n in g.nodes:
         g._node[n]['state'] = random.randint(0, likert - 1)
-
+    g._node[0]['state'] = random.randint(round((likert - 1)/2), likert - 1)
+    
     nx.set_node_attributes(g, 0, 'influencer') # each node gets attribute called influencer
     g._node[0]['influencer'] = 1 # node 0 is the influencer
     
