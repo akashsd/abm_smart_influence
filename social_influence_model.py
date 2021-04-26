@@ -15,8 +15,10 @@ from enum import Enum, IntEnum
 import random
 
 timesteps = 20
-simulations = 5
-prevalence_array = np.zeros([timesteps, simulations])  
+simulations = 3
+prevalence_array = np.zeros([timesteps, simulations])
+influencer_array = np.zeros([timesteps, simulations])
+seeker_array = np.zeros([timesteps, simulations]) 
 
 N = 10
 k = 2
@@ -29,9 +31,11 @@ base_pay = 16
 
 
 def initialize():
-    global g, nextg, prevalence, true
+    global g, nextg, prevalence, true, influencer_pay, seeker_pay
     
     prevalence = []
+    influencer_pay = []
+    seeker_pay = []
     
     g = nx.newman_watts_strogatz_graph(N,k,p,seed) # use newman watts strogatz network with n nodes, k connected neighbors, p probability of rewiring edges, seed
     g.pos = nx.spring_layout(g) # create initial position for nodes
@@ -61,9 +65,11 @@ def initialize():
     nextg = g.copy()
     nextg.pos = g.pos
     prevalence.append(1/len(g.nodes))
+    influencer_pay.append(base_pay)
+    seeker_pay.append(base_pay)
 
 def update():
-    global g, nextg, prevalence, true
+    global g, nextg, prevalence, true, influencer_pay, seeker_pay
     curprev = 0
     nextg = deepcopy(g) # current and next time steps are totally separate
     
@@ -77,6 +83,10 @@ def update():
         neighbor_total = 0
         neighbor_avg = 0
         
+        seeker_payoff = 0
+        influencer_payoff = 0
+        
+        
         for b in g.neighbors(a):
             neighbor_value = neighbor_value + g._node[b]['state']
             neighbor_total += 1
@@ -85,6 +95,8 @@ def update():
         
         if g._node[a]['influencer'] == 0: # if seeker
             nextg._node[a]['influencer'] = 0
+            
+            seeker_payoff = g._node[a]['payoff']
             
             for i in range(0, likert):
                 
@@ -97,26 +109,36 @@ def update():
                 
             seeker_value = seeker_value + nextg._node[a]['state']
             nextg._node[a]['payoff'] = base_pay - (true - nextg._node[a]['state'])**2
+            seeker_payoff = seeker_payoff + nextg._node[a]['payoff']
         
+        seeker_payoff = seeker_payoff/seeker_total
         seeker_avg = seeker_value/seeker_total
         
         if g._node[a]['influencer'] == 1: # if influencer
+            influencer_state = g._node[a]['state']
+            influencer_payoff = g._node[a]['payoff']
+            
             nextg._node[a]['payoff'] = base_pay - (seeker_avg - nextg._node[a]['state'])**2   
-        
+            
+            influencer_payoff = influencer_payoff + nextg._node[a]['payoff']
+            
             nextg._node[a]['influencer'] = 1
             nextg._node[a]['state'] = g._node[a]['state']
-            
         
-        if g._node[a]['state'] == 1:
+        influencer_payoff = influencer_payoff/1
+        
+        if g._node[a]['state'] == influencer_state:
             curprev += 1
             
     g = deepcopy(nextg)
     prevalence.append(curprev/len(g.nodes))
+    influencer_pay.append(influencer_payoff)
+    seeker_pay.append(seeker_payoff)
 
 def observe():
     global g, prevalence
     cla()
-    nx.draw_networkx(g, cmap = 'Wistia', vmin = 0, vmax = 1, 
+    nx.draw_networkx(g, cmap = cm.Wistia, vmin = 0, vmax = 1, 
             #labels = labels, fontcolor = "whitesmoke", font_size = 20,        
             node_color = [g._node[i]['state'] for i in g.nodes],
             pos = g.pos)
@@ -133,13 +155,38 @@ for i in range(0,simulations):    # loop over all simulations
     print("The true value for this simulation is: {}".format(true))
     print()
     prevalence_array[:,i] = prevalence         # store the resulting simulation in prevalence_array
+    influencer_array[:,i] = influencer_pay
+    seeker_array[:,i] = seeker_pay
+prevalence_avg = prevalence_array.mean(axis=1)  # takes row average
+influencer_avg = influencer_array.mean(axis=1)
+seeker_avg = seeker_array.mean(axis=1)
 
 # Graph Prevalence
-prevalence_avg = prevalence_array.mean(axis=1)  # takes row average
+for i in range(0,simulations):
+    prevalence_graph = scatter(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
+    plot(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)    
+scatter(range(len(prevalence_avg)), prevalence_avg, color = 'black', alpha = 1)
+plot(range(len(prevalence_avg)), prevalence_avg, color = 'black', alpha = 1)
+xlabel("Time")
+ylabel("Prevalence of Influencer Signal")
+show(prevalence_graph)
 
-plt.scatter(range(len(prevalence_avg)), prevalence_avg, alpha=0.1)
-plt.xlabel("Time")
-plt.ylabel("Prevalence of Influencer Signal")
-plt.show()
-plt.savefig('plot%d.png' % i)
-    
+# Graph Influencer Payoff
+for i in range(0,simulations):
+    influencer_graph = scatter(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.1)
+    plot(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.1)
+scatter(range(len(influencer_avg)), influencer_avg, color = 'black', alpha = 1)
+plot(range(len(influencer_avg)), influencer_avg, color = 'black', alpha = 1)
+xlabel("Time")
+ylabel("Average Payoffs of Influencer")
+show(influencer_graph)
+
+# Graph Seeker Payoff
+for i in range(0,simulations):
+    seeker_graph = scatter(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.1)
+    plot(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.1)
+scatter(range(len(seeker_avg)), seeker_avg, color = 'black', alpha = 1)
+plot(range(len(seeker_avg)), seeker_avg, color = 'black', alpha = 1)
+xlabel("Time")
+ylabel("Average Payoffs of Seekers")
+show(seeker_graph)
