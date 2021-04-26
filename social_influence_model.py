@@ -116,7 +116,7 @@ def update():
 def observe():
     global g, prevalence
     cla()
-    nx.draw_networkx(g, cmap = cm.Wistia, vmin = 0, vmax = 1, 
+    nx.draw_networkx(g, cmap = 'Wistia', vmin = 0, vmax = 1, 
             #labels = labels, fontcolor = "whitesmoke", font_size = 20,        
             node_color = [g._node[i]['state'] for i in g.nodes],
             pos = g.pos)
@@ -135,10 +135,11 @@ for i in range(0,simulations):    # loop over all simulations
     prevalence_array[:,i] = prevalence         # store the resulting simulation in prevalence_array
 
 # Graph Prevalence
-    prevalence_graph = scatter(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
-    plot(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
-xlabel("Time")
-ylabel("Prevalence of Influencer Signal")
-show(prevalence_graph)
+prevalence_avg = prevalence_array.mean(axis=1)  # takes row average
 
+plt.scatter(range(len(prevalence_avg)), prevalence_avg, alpha=0.1)
+plt.xlabel("Time")
+plt.ylabel("Prevalence of Influencer Signal")
+plt.show()
+plt.savefig('plot%d.png' % i)
     
