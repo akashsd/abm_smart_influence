@@ -23,6 +23,8 @@ k = 2
 p = 0.2
 seed = 100
 
+likert = 5
+
 def initialize():
     global g, nextg, prevalence
     
@@ -33,8 +35,8 @@ def initialize():
     
     nx.set_node_attributes(g, 0, 'state') # each node gets attribute called state where 0 := susceptible
     for n in g.nodes:
-        g._node[n]['state'] = random.randint(0,1)
-    g._node[1]['state'] = 1 # node 1 starts with state 1 := influencer signal
+        g._node[n]['state'] = random.randint(0, likert - 1)
+    g._node[1]['state'] = random.randint(0, likert - 1) # node 1 starts with state 1 := influencer signal
 
     nx.set_node_attributes(g, 0, 'influencer') # each node gets attribute called influencer
     g._node[1]['influencer'] = 1 # node 1 is the influencer
@@ -72,12 +74,12 @@ def update():
 
             avg = value/total
             
-            if avg < 0.5:
-                nextg._node[a]['state'] = 0 
-            if avg == 0.5: 
-                nextg._node[a]['state'] = randint(0,2)
-            if avg > 0.5: 
-                nextg._node[a]['state'] = 1
+            if abs(avg - i) < 0.5:
+                nextg._node[a]['state'] = i
+            if (avg - i) == 0.5: 
+                nextg._node[a]['state'] = random.randint(i, i+1)
+            if (avg - i) == -0.5: 
+                nextg._node[a]['state'] = random.randint(i-1, i)
         
         if g._node[a]['state'] == 1:
             curprev += 1
