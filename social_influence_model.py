@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from enum import Enum, IntEnum
 import random
 
-timesteps = 100
-simulations = 1
+timesteps = 20
+simulations = 5
 prevalence_array = np.zeros([timesteps, simulations])  
 
 N = 10
@@ -135,7 +135,8 @@ for i in range(0,simulations):    # loop over all simulations
     prevalence_array[:,i] = prevalence         # store the resulting simulation in prevalence_array
 
 # Graph Prevalence
-prevalence_graph = scatter(range(len(prevalence)), prevalence, cmap = 'blue')
+    prevalence_graph = scatter(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
+    plot(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
 xlabel("Time")
 ylabel("Prevalence of Influencer Signal")
 show(prevalence_graph)
