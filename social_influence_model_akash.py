@@ -15,7 +15,7 @@ from enum import Enum, IntEnum
 import random 
 
 
-timesteps = 200
+timesteps = 100
 simulations = 100
 prevalence_array = np.zeros([timesteps, simulations])
 
@@ -117,10 +117,11 @@ for i in range(0, simulations):    # loop over all simulations
 prevalence_avg = prevalence_array.mean(axis=1) #takes row average
 
 plt.scatter(range(len(prevalence_avg)), prevalence_avg, alpha=0.1)
+plt.scatter(range(len(prevalence_array[:, i])), prevalence_array[:, i],color='Blue')
 plt.xlabel("Time")
 plt.ylabel("Prevalence of Influencer Signal")
+plt.savefig('plot.png')
 plt.show()
-plt.savefig('plot%d.png' % i)
 
 
 
