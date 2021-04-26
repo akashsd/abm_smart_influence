@@ -20,10 +20,10 @@ prevalence_array = np.zeros([timesteps, simulations])
 influencer_array = np.zeros([timesteps, simulations])
 seeker_array = np.zeros([timesteps, simulations]) 
 
-N = 10
-k = 2
-p = 0.2
-seed = 100
+N = 10 # number of nodes
+k = 2 # number of connected neighbors for Watts-Strogatz network
+p = 0.2 # probability of rewiring edges for Watts-Strogatz network
+seed = 100 # seed value
 
 likert = 5
 
@@ -37,7 +37,8 @@ def initialize():
     influencer_pay = []
     seeker_pay = []
     
-    g = nx.newman_watts_strogatz_graph(N,k,p,seed) # use newman watts strogatz network with n nodes, k connected neighbors, p probability of rewiring edges, seed
+    #g = nx.complete_graph(N) # use complete graph
+    g = nx.newman_watts_strogatz_graph(N,k,p,seed) # use newman-watts-strogatz network
     g.pos = nx.spring_layout(g) # create initial position for nodes
     
     nx.set_node_attributes(g, 0, 'state') # each node gets attribute called state where 0 := susceptible
@@ -55,12 +56,6 @@ def initialize():
         if g._node[m]['influencer'] == 0:
             true = true + g._node[m]['state']
     true = true/(N-1) #true average
-        
-    
-    # labels = {}
-    # labels = labels.append("Influencer")
-    # for i in range(1, len(g.nodes)):
-    #     labels = labels.append("Seeker")
     
     nextg = g.copy()
     nextg.pos = g.pos
@@ -149,6 +144,11 @@ def observe():
 # Update Prevalence Array
 for i in range(0,simulations):    # loop over all simulations
     initialize()                  # initialize each simulation
+    if i == 0:
+        nx.draw_networkx(g, vmin = 0, vmax = 1, cmap = cm.bwr,
+            node_color = [g._node[i]['influencer'] for i in g.nodes],
+            pos = g.pos, with_labels = False)
+        plt.show()
     for j in range(1,timesteps):  # loop over the timesteps for that simulation
         update()                  # update
     print("The current simulation being run is: %d " % (i + 1))
