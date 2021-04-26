@@ -15,7 +15,7 @@ from enum import Enum, IntEnum
 import random
 
 timesteps = 20
-simulations = 3
+simulations = 10
 prevalence_array = np.zeros([timesteps, simulations])
 influencer_array = np.zeros([timesteps, simulations])
 seeker_array = np.zeros([timesteps, simulations]) 
@@ -163,30 +163,33 @@ seeker_avg = seeker_array.mean(axis=1)
 
 # Graph Prevalence
 for i in range(0,simulations):
-    prevalence_graph = scatter(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)
-    plot(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.1)    
+    prevalence_graph = scatter(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.05)
+    plot(range(len(prevalence_array[:,i])), prevalence_array[:,i], alpha = 0.05)    
 scatter(range(len(prevalence_avg)), prevalence_avg, color = 'black', alpha = 1)
 plot(range(len(prevalence_avg)), prevalence_avg, color = 'black', alpha = 1)
+title("Prevalence of Influencer Signal")
 xlabel("Time")
-ylabel("Prevalence of Influencer Signal")
+ylabel("Prevalence")
 show(prevalence_graph)
 
 # Graph Influencer Payoff
 for i in range(0,simulations):
-    influencer_graph = scatter(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.1)
-    plot(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.1)
+    influencer_graph = scatter(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.05)
+    plot(range(len(influencer_array[:,i])), influencer_array[:,i], alpha = 0.05)
 scatter(range(len(influencer_avg)), influencer_avg, color = 'black', alpha = 1)
 plot(range(len(influencer_avg)), influencer_avg, color = 'black', alpha = 1)
+title("Average Payoffs of Influencer")
 xlabel("Time")
-ylabel("Average Payoffs of Influencer")
+ylabel("Average Payoffs")
 show(influencer_graph)
 
 # Graph Seeker Payoff
 for i in range(0,simulations):
-    seeker_graph = scatter(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.1)
-    plot(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.1)
+    seeker_graph = scatter(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.05)
+    plot(range(len(seeker_array[:,i])), seeker_array[:,i], alpha = 0.05)
 scatter(range(len(seeker_avg)), seeker_avg, color = 'black', alpha = 1)
 plot(range(len(seeker_avg)), seeker_avg, color = 'black', alpha = 1)
+title("Average Payoffs of Seeker")
 xlabel("Time")
-ylabel("Average Payoffs of Seekers")
+ylabel("Average Payoffs")
 show(seeker_graph)
