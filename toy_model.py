@@ -13,16 +13,16 @@ import matplotlib.pyplot as plt
 from enum import Enum, IntEnum 
 import random 
 
-timesteps = 40
+timesteps = 20
 simulations = 10
 prevalence_array = np.zeros([timesteps, simulations])
 influencer_array = np.zeros([timesteps, simulations])
 seeker_array = np.zeros([timesteps, simulations])
 
-N = 10
-k = 2
-p = 0.2
-seed = 100
+N = 10  # number of nodes
+k = 2  # number of connected neighbors for Watts-Strogatz network
+p = 0.2  # probability of rewiring edges for Watts-Strogatz network
+seed = 100  # seed value
 
 likert = 5
 
@@ -36,7 +36,8 @@ def initialize():
     influencer_pay = []
     seeker_pay = []
 
-    # use newman watts strogatz network with n nodes, k connected neighbors, p probability of rewiring edges, seed
+    #g = nx.complete_graph(N) # use complete graph
+    # use newman-watts-strogatz network
     g = nx.newman_watts_strogatz_graph(N, k, p, seed)
     g.pos = nx.spring_layout(g)  # create initial position for nodes
 
@@ -44,6 +45,7 @@ def initialize():
     nx.set_node_attributes(g, 0, 'state')
     for n in g.nodes:
         g._node[n]['state'] = random.randint(0, likert - 1)
+    g._node[0]['state'] = random.randint(round((likert - 1)/2), likert - 1)
 
     # each node gets attribute called influencer
     nx.set_node_attributes(g, 0, 'influencer')
@@ -59,11 +61,6 @@ def initialize():
         if g._node[m]['influencer'] == 0:
             true = true + g._node[m]['state']
     true = true/(N-1)  # true average
-
-    # labels = {}
-    # labels = labels.append("Influencer")
-    # for i in range(1, len(g.nodes)):
-    #     labels = labels.append("Seeker")
 
     nextg = g.copy()
     nextg.pos = g.pos
@@ -143,7 +140,7 @@ def update():
 def observe():
     global g, prevalence
     cla()
-    nx.draw_networkx(g, cmap=cm.Wistia, vmin=0, vmax=1,
+    nx.draw_networkx(g, cmap='Wistia', vmin=0, vmax=1,
                      #labels = labels, fontcolor = "whitesmoke", font_size = 20,
                      node_color=[g._node[i]['state'] for i in g.nodes],
                      pos=g.pos)
@@ -154,6 +151,12 @@ def observe():
 # Update Prevalence Array
 for i in range(0, simulations):    # loop over all simulations
     initialize()                  # initialize each simulation
+    if i == 0:
+        nx.draw_networkx(g, vmin=0, vmax=1, cmap='bwr',
+                         node_color=[g._node[i]['influencer']
+                                     for i in g.nodes],
+                         pos=g.pos, with_labels=False)
+        plt.show()
     for j in range(1, timesteps):  # loop over the timesteps for that simulation
         update()                  # update
     print("The current simulation being run is: %d " % (i + 1))
@@ -170,32 +173,37 @@ seeker_avg = seeker_array.mean(axis=1)
 # Graph Prevalence
 for i in range(0, simulations):
     prevalence_graph = scatter(
-        range(len(prevalence_array[:, i])), prevalence_array[:, i], alpha=0.1)
-    plot(range(len(prevalence_array[:, i])), prevalence_array[:, i], alpha=0.1)
+        range(len(prevalence_array[:, i])), prevalence_array[:, i], alpha=0.05)
+    plot(range(len(prevalence_array[:, i])),
+         prevalence_array[:, i], alpha=0.05)
 scatter(range(len(prevalence_avg)), prevalence_avg, color='black', alpha=1)
 plot(range(len(prevalence_avg)), prevalence_avg, color='black', alpha=1)
+title("Prevalence of Influencer Signal")
 xlabel("Time")
-ylabel("Prevalence of Influencer Signal")
+ylabel("Prevalence")
 plt.show()
 
 # Graph Influencer Payoff
 for i in range(0, simulations):
     influencer_graph = scatter(
-        range(len(influencer_array[:, i])), influencer_array[:, i], alpha=0.1)
-    plot(range(len(influencer_array[:, i])), influencer_array[:, i], alpha=0.1)
+        range(len(influencer_array[:, i])), influencer_array[:, i], alpha=0.05)
+    plot(range(len(influencer_array[:, i])),
+         influencer_array[:, i], alpha=0.05)
 scatter(range(len(influencer_avg)), influencer_avg, color='black', alpha=1)
 plot(range(len(influencer_avg)), influencer_avg, color='black', alpha=1)
+title("Average Payoffs of Influencer")
 xlabel("Time")
-ylabel("Average Payoffs of Influencer")
+ylabel("Average Payoffs")
 plt.show()
 
 # Graph Seeker Payoff
 for i in range(0, simulations):
     seeker_graph = scatter(
-        range(len(seeker_array[:, i])), seeker_array[:, i], alpha=0.1)
-    plot(range(len(seeker_array[:, i])), seeker_array[:,i], alpha = 0.1)
-scatter(range(len(seeker_avg)), seeker_avg, color= 'black', alpha = 1)
-plot(range(len(seeker_avg)), seeker_avg, color= 'black', alpha = 1)
+        range(len(seeker_array[:, i])), seeker_array[:, i], alpha=0.05)
+    plot(range(len(seeker_array[:, i])), seeker_array[:, i], alpha=0.05)
+scatter(range(len(seeker_avg)), seeker_avg, color='black', alpha=1)
+plot(range(len(seeker_avg)), seeker_avg, color='black', alpha=1)
+title("Average Payoffs of Seeker")
 xlabel("Time")
-ylabel("Average Payoffs of Seekers")
+ylabel("Average Payoffs")
 plt.show()
